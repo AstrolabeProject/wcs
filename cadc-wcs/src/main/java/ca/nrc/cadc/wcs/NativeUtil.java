@@ -92,12 +92,15 @@ public class NativeUtil
     static void loadJNI(ClassLoader cl, String name, UUID uuid)
         throws NativeInitializationException
     {
+        String soExt = ".so";               // default is Linux
+        if (System.getenv("OSTYPE").equals("darwin")) // but check for OSX
+          soExt = ".dylib";
         File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-        File tmp = new File(tmpdir, name + "-" + uuid.toString() + ".so");
+        File tmp = new File(tmpdir, name + "-" + uuid.toString() + soExt);
         
         try
         {
-            String soname = name + ".so";
+            String soname = name + soExt;
             URL url = cl.getResource(soname);
             
             if (url == null)
