@@ -1,115 +1,88 @@
 plugins {
   id 'c'
-  id 'java'
+  id 'java-library'
   id 'maven'
-  id 'maven-publish'
-  id 'com.jfrog.bintray' version '1.7.1'
 }
 
 repositories {
   jcenter()
   mavenLocal()
-
-  // Only here until cadcUtil is in jcenter.
-  maven {
-    url "http://dl.bintray.com/opencadc/software"
-  }
+  mavenCentral()
 }
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
-group = 'org.opencadc'
-
-version = '2.0'
+version = '2.1'
 
 dependencies {
-  compile 'log4j:log4j:1.+'
-  compile 'org.opencadc:cadc-util:1.+'
-
+  implementation 'org.apache.logging.log4j:log4j-core:2.12.0'
+  implementation 'org.apache.logging.log4j:log4j-api:2.12.0'
+  implementation 'org.opencadc:cadc-util:[1.2.14,)'
   testCompile 'junit:junit:4.+'
 }
 
-def tmpBuildDir = 'build/tmp'
-def jniLibDir = '/usr/lib/jvm/java/include'
-
 model {
-
-    repositories {
-        libs(PrebuiltLibraries) {
-            wcsx {
-                headers.srcDir '/usr/include/wcslib'
-                binaries.withType(SharedLibraryBinary) {
-                    // swugly: check for libwcs.so in some places it might be
-                    sharedLibraryFile = file('/usr/lib64/libwcs.so')
-                    if (!sharedLibraryFile.exists()) {
-                        sharedLibraryFile = file('/usr/lib/libwcs.so')
-                    }
-                    if (!sharedLibraryFile.exists()) {
-                        sharedLibraryFile = file('/usr/local/lib/libwcs.so')
-                    }
-                }
-            }    
-
-            jni {
-                headers.srcDirs = [jniLibDir, jniLibDir + '/linux', tmpBuildDir]
-            }
+  repositories {
+    libs(PrebuiltLibraries) {
+      wcsx {
+        // headers.srcDir '/usr/include/wcslib'  // Linux
+        headers.srcDir "/usr/local/include/wcslib"
+        binaries.withType(SharedLibraryBinary) {
+          // sharedLibraryFile = file('/usr/local/lib/libwcs.so') // Linux
+          sharedLibraryFile = file('/usr/local/lib/libwcs.dylib')
         }
+      }
     }
+  }
 
-    components {
-        wcsLibJNI(NativeLibrarySpec) {
+  components {
+    wcsLibJNI(NativeLibrarySpec) {
 
-            sources {
-                c {
-                    lib library: 'jni', linkage: 'api'
-                    lib library: 'wcsx', linkage: 'shared'
-                }
-            }
-
-            binaries.all {
-                cCompiler.args '-fexceptions',
-                '-ansi',
-                '-std=c99',
-                '-pedantic',
-                '-Wall',
-                '-Wno-parentheses',
-                '-Wno-long-long',
-                '-Wimplicit',
-                '-D_REENTRANT',
-                '-DCOMPILE_STYLE=ANSI_C_COMPILE',
-                '-DCOMPILER_gnu',
-                '-Dx86_linux',
-                '-D_POSIX_C_SOURCE=2'
-            }
+      sources {
+        c {
+          lib library: 'wcsx'
         }
+      }
+
+      binaries.all {
+        if (targetPlatform.operatingSystem.macOsX) {
+          cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+          cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
+          cCompiler.args '-mmacosx-version-min=10.4'
+          linker.args '-mmacosx-version-min=10.4'
+        } else if (targetPlatform.operatingSystem.linux) {
+          cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+          cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+          cCompiler.args '-D_FILE_OFFSET_BITS=64'
+        }
+
+        cCompiler.args '-fexceptions',
+          '-dylib',
+          '-ansi',
+          '-std=c99',
+          '-pedantic',
+          '-Wall',
+          '-Wno-parentheses',
+          '-Wno-long-long',
+          '-Wimplicit',
+          '-DBUILD_SHARED_LIBS=OFF',
+          '-D_REENTRANT',
+          '-DCOMPILE_STYLE=ANSI_C_COMPILE',
+          '-DCOMPILER_gnu',
+          '-Dx86_linux',
+          '-D_POSIX_C_SOURCE=2'
+      }
     }
+  }
+} // model
 
-}
-
-task generateJNIHeader(type:Exec) {
-  def classpath = sourceSets.main.output.classesDir
-  def classname = 'ca.nrc.cadc.wcs.WCSLib'
-  commandLine 'javah', '-d', tmpBuildDir, '-classpath', classpath, classname
-}
-
-task copySharedLibrary(type:Copy) {
-    // ugh: different versions of gradle put the .so in different places
-    from 'build/libs/wcsLibJNI/shared/libwcsLibJNI.so'           // gradle 3
-    from 'build/binaries/wcsLibJNISharedLibrary/libwcsLibJNI.so' // gradle 2
-    into sourceSets.main.output.classesDir
-}
-
-task assembleSharedJar(type:Jar) {
+task wcsJar(type:Jar) {
+  manifest {
+    attributes('Project-Title': project.name,
+               'Project-Version': project.version)
+  }
   from(sourceSets.main.output)
+  from(sourceSets.test.output)
+  from('build/libs/wcsLibJNI/shared/libwcsLibJNI.dylib')
+  dependsOn build
 }
-
-// change the default order of task execution so it does:
-// - java compile,
-// - javah,
-// - .so construction,
-// - jar construction
-//
-jar.enabled = false
-classes.dependsOn generateJNIHeader
-assembleSharedJar.dependsOn copySharedLibrary
-compileTestJava.dependsOn copySharedLibrary, assembleSharedJar
