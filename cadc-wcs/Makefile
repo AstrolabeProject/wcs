@@ -18,6 +18,9 @@ clean:
 testjar: $(BUILDJAR)
 	java -cp $(BUILDJAR):$(XTRALIBS) ca.nrc.cadc.wcs.Main -v
 
+macjar: $(GSRC)
+	gradle -x test clean wcsJar -Pos=darwin
+
 jar: $(BUILDJAR)
 
 $(BUILDJAR): $(GSRC)
