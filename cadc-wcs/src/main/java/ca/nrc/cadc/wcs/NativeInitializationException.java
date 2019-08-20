@@ -69,8 +69,7 @@
 
 package ca.nrc.cadc.wcs;
 
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 /**
  *
@@ -78,7 +77,7 @@ import org.apache.log4j.Logger;
  */
 public class NativeInitializationException extends Exception
 {
-    private static final Logger log = Logger.getLogger(NativeInitializationException.class);
+    private static final Logger log = LogManager.getLogger(NativeInitializationException.class);
 
     public NativeInitializationException(String msg)
     {

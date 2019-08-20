@@ -77,7 +77,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.UUID;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 /**
  *
@@ -85,7 +85,7 @@ import org.apache.log4j.Logger;
  */
 public class NativeUtil 
 {
-    private static final Logger log = Logger.getLogger(NativeUtil.class);
+    private static final Logger log = LogManager.getLogger(NativeUtil.class);
 
     private NativeUtil() { }
     

@@ -69,44 +69,44 @@
 
 package ca.nrc.cadc.wcs;
 
-
 import ca.nrc.cadc.util.Log4jInit;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 /**
  *
  * @author pdowler
  */
-public class Main 
-{
-    private static final Logger log = Logger.getLogger(Main.class);
+public class Main {
+    private static final Logger log = LogManager.getLogger(Main.class);
 
-    static
-    {
-        Log4jInit.setLevel("ca.nrc.cadc.wcs", Level.DEBUG);
-    }
-    
     private Main() { }
-    
-    public static void main(String[] args)
-    {
-        try
-        {
+
+    public static void main(String[] args) {
+
+        boolean verbose = false;
+        if ((args.length > 0) && (args[0].equals("-v") || args[0].equals("--verbose")))
+            verbose = true;
+
+        try {
+            if (verbose)
+                log.info("Attempting to load wcslib native code...");
             Class.forName("ca.nrc.cadc.wcs.WCSLib");
         }
-        catch(Throwable t)
-        {
-            log.error("failed to load wcslib native code", t);
+        catch(Throwable t) {
+            log.error("Failed to load wcslib native code", t);
         }
-        try
-        {
+
+        try {
+            if (verbose)
+                log.info("Attempting to call wcslib native code...");
             Runnable r = (Runnable) Class.forName("ca.nrc.cadc.wcs.VerifyWCS").newInstance();
             r.run();
         }
-        catch(Throwable t)
-        {
-            log.error("failed to verify wcslib native code", t);
+        catch(Throwable t) {
+            log.error("Failed to verify wcslib native code", t);
         }
+
+        if (verbose)
+            log.info("Loaded and called wcslib native code.");
     }
 }

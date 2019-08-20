@@ -9,8 +9,7 @@
 package ca.nrc.cadc.wcs;
 
 import ca.nrc.cadc.util.Log4jInit;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,12 +19,7 @@ import org.junit.Test;
  */
 public class SpatialTest
 {
-    private static final Logger log = Logger.getLogger(SpatialTest.class);
-
-    static
-    {
-        Log4jInit.setLevel("ca.nrc.cadc.wcs", Level.INFO);
-    }
+    private static final Logger log = LogManager.getLogger(SpatialTest.class);
 
     public SpatialTest()
     {

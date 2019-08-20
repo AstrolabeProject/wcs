@@ -72,8 +72,7 @@ package ca.nrc.cadc.wcs;
 import ca.nrc.cadc.util.Log4jInit;
 import ca.nrc.cadc.wcs.Transform.Result;
 import ca.nrc.cadc.wcs.exceptions.WCSLibRuntimeException;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -89,14 +88,8 @@ import org.junit.Test;
  */
 public class WCSLibTest
 {
-    private static final Logger log = Logger.getLogger(WCSLibTest.class);
+    private static final Logger log = LogManager.getLogger(WCSLibTest.class);
     
-    static
-    {
-        // debug only adds a few lines from NativeUtil deploying the shared lib
-        Log4jInit.setLevel("ca.nrc.cadc.wcs", Level.INFO);
-    }
-
     public WCSLibTest()
     {
     }

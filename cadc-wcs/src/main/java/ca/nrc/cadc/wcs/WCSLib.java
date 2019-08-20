@@ -75,7 +75,7 @@ import ca.nrc.cadc.wcs.exceptions.WCSLibRuntimeException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 /**
  * This class contains the native method definitions to the WCSLIB 4.2 C routines
@@ -87,7 +87,7 @@ import org.apache.log4j.Logger;
  */
 final class WCSLib
 {
-    private static final Logger log = Logger.getLogger(WCSLib.class);
+    private static final Logger log = LogManager.getLogger(WCSLib.class);
     
     private static final UUID uuid = UUID.randomUUID();
     

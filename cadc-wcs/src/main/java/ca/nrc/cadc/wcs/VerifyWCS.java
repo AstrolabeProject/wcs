@@ -71,7 +71,7 @@ package ca.nrc.cadc.wcs;
 
 
 import ca.nrc.cadc.wcs.exceptions.NoSuchKeywordException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 /**
  *
@@ -79,7 +79,7 @@ import org.apache.log4j.Logger;
  */
 public class VerifyWCS implements Runnable
 {
-    private static final Logger log = Logger.getLogger(VerifyWCS.class);
+    private static final Logger log = LogManager.getLogger(VerifyWCS.class);
 
     public VerifyWCS() { }
     
