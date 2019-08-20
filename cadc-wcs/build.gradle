@@ -28,7 +28,7 @@ model {
         // headers.srcDir '/usr/include/wcslib'  // Linux
         headers.srcDir "/usr/local/include/wcslib"
         binaries.withType(SharedLibraryBinary) {
-          // sharedLibraryFile = file('/usr/local/lib/libwcs.so') // Linux
+          // sharedLibraryFile = file('/usr/lib/x86_64-linux-gnu/libwcs.so') // Linux
           sharedLibraryFile = file('/usr/local/lib/libwcs.dylib')
         }
       }
@@ -57,7 +57,6 @@ model {
         }
 
         cCompiler.args '-fexceptions',
-          '-dylib',
           '-ansi',
           '-std=c99',
           '-pedantic',
@@ -83,6 +82,7 @@ task wcsJar(type:Jar) {
   }
   from(sourceSets.main.output)
   from(sourceSets.test.output)
+  // from('build/libs/wcsLibJNI/shared/libwcsLibJNI.so') // Linux
   from('build/libs/wcsLibJNI/shared/libwcsLibJNI.dylib')
   dependsOn build
 }
