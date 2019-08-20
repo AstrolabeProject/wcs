@@ -14,6 +14,17 @@ sourceCompatibility = 1.8
 
 version = '2.1'
 
+def whichHdr = '/usr/include/wcslib'                   // Linux
+def whichJNI = 'libwcsLibJNI.so'                       // Linux
+def whichLib = '/usr/lib/x86_64-linux-gnu/libwcs.so.5' // Linux
+
+def whichOS = project.hasProperty('os') ? project.os : 'linux'
+if (whichOS.contains('osx') || whichOS.contains('darwin')) {
+  whichHdr = '/usr/local/include/wcslib'
+  whichJNI = 'libwcsLibJNI.dylib'
+  whichLib = '/usr/local/lib/libwcs.dylib'
+}
+
 dependencies {
   implementation 'org.apache.logging.log4j:log4j-core:2.12.1'
   implementation 'org.apache.logging.log4j:log4j-api:2.12.1'
@@ -25,11 +36,9 @@ model {
   repositories {
     libs(PrebuiltLibraries) {
       wcsx {
-        // headers.srcDir '/usr/include/wcslib'  // Linux
-        headers.srcDir "/usr/local/include/wcslib"
+        headers.srcDir(whichHdr)
         binaries.withType(SharedLibraryBinary) {
-          // sharedLibraryFile = file('/usr/lib/x86_64-linux-gnu/libwcs.so') // Linux
-          sharedLibraryFile = file('/usr/local/lib/libwcs.dylib')
+          sharedLibraryFile = file(whichLib)
         }
       }
     }
@@ -82,7 +91,6 @@ task wcsJar(type:Jar) {
   }
   from(sourceSets.main.output)
   from(sourceSets.test.output)
-  // from('build/libs/wcsLibJNI/shared/libwcsLibJNI.so') // Linux
-  from('build/libs/wcsLibJNI/shared/libwcsLibJNI.dylib')
+  from("build/libs/wcsLibJNI/shared/${whichJNI}")
   dependsOn build
 }
