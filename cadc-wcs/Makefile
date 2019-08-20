@@ -7,7 +7,7 @@ XTRALIBS = xtralibs/log4j-api-2.12.1.jar:xtralibs/log4j-core-2.12.1.jar
 .PHONY: help build clean
 
 help:
-	@echo "Make what? Try: build, clean, testjar, jar"
+	@echo "Make what? Try: build, clean, jar, macjar, testjar"
 
 build:
 	gradle --info -x test clean wcsJar
