@@ -69,7 +69,6 @@
 
 package ca.nrc.cadc.wcs;
 
-import ca.nrc.cadc.util.Log4jInit;
 import org.apache.logging.log4j.*;
 
 /**
